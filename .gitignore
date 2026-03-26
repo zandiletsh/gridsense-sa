@@ -1,0 +1,7 @@
+.terraaform/
+*.tfstate
+*.tfstate.backup
+.terraform.lockhcl
+.env
+*.pem
+*.key
