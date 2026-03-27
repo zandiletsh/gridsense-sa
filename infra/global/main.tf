@@ -10,6 +10,15 @@ terraform {
         version = "~> 5.0"
       }
     }
+
+     # Add this block — tells Terraform to store state in S3
+  backend "s3" {
+    bucket         = "gridsense-terraform-state-173679718835"
+    key            = "global/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "gridsense-terraform-locks"
+    encrypt        = true
+}
 }
 
 provider "aws" {
