@@ -1,7 +1,23 @@
-.terraaform/
+# Terraform
+.terraform/
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
-.terraform.lockhcl
+terraform.tfvars
+override.tf
+
+# Environment variables
 .env
+.env.*
+
+# Keys and secrets
 *.pem
 *.key
+*.p12
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
