@@ -1,0 +1,16 @@
+# helm/templates/configmap.yaml
+# Non-sensitive configuration for the eskom-ingestor service.
+# Unlike Secrets, ConfigMaps store plain text config values.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eskom-ingestor-config
+  namespace: ingestion
+  labels:
+    app: eskom-ingestor
+    project: gridsense
+data:
+  KAFKA_TOPIC: "eskom.generation.raw"
+  POLL_INTERVAL_SECONDS: "300"
+  LOG_LEVEL: "INFO"

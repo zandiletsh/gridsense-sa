@@ -1,0 +1,75 @@
+# helm/templates/deployment.yaml
+# Tells Kubernetes how to run the eskom-ingestor service.
+# A Deployment manages one or more identical pods and ensures
+# the desired number are always running.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eskom-ingestor
+  namespace: ingestion
+  labels:
+    app: eskom-ingestor
+    project: gridsense
+    version: "1.0.0"
+spec:
+  # We only need 1 replica — this service polls an API,
+  # running 2 copies would double our API calls
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eskom-ingestor
+  template:
+    metadata:
+      labels:
+        app: eskom-ingestor
+        project: gridsense
+    spec:
+      containers:
+        - name: eskom-ingestor
+          image: 173679718835.dkr.ecr.us-east-1.amazonaws.com/gridsense/eskom-ingestor:latest
+          imagePullPolicy: Always
+
+          # Environment variables injected from Kubernetes Secret
+          # The actual values are never stored in this file
+          env:
+            - name: ESKOMSEPUSH_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: eskom-ingestor-secrets
+                  key: ESKOMSEPUSH_API_TOKEN
+
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                secretKeyRef:
+                  name: eskom-ingestor-secrets
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: KAFKA_TOPIC
+              value: "eskom.generation.raw"
+
+            - name: POLL_INTERVAL_SECONDS
+              value: "300"
+
+          # Resource limits — prevents one pod from
+          # consuming all node resources
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+          # Liveness probe — Kubernetes restarts pod if this fails
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import sys; sys.exit(0)"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+
+      # Restart policy — always restart if the container exits
+      restartPolicy: Always
