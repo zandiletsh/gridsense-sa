@@ -1,0 +1,5 @@
+Gridsense project
+
+real Kafka broker addresses:
+Broker 1: b-1.gridsensedev.13is9i.c6.kafka.us-east-1.amazonaws.com:9092
+Broker 2: b-2.gridsensedev.13is9i.c6.kafka.us-east-1.amazonaws.com:9092
