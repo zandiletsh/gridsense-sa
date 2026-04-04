@@ -29,6 +29,23 @@ resource "aws_security_group" "msk" {
     description = "ZooKeeper"
   }
 
+  # Allow traffic from EKS cluster security group
+ingress {
+  from_port       = 9092
+  to_port         = 9092
+  protocol        = "tcp"
+  security_groups = [var.eks_security_group_id]
+  description     = "Kafka plaintext from EKS"
+}
+
+ingress {
+  from_port       = 9094
+  to_port         = 9094
+  protocol        = "tcp"
+  security_groups = [var.eks_security_group_id]
+  description     = "Kafka TLS from EKS"
+}
+
   egress {
     from_port   = 0
     to_port     = 0

@@ -46,3 +46,8 @@ variable "broker_volume_size" {
   type        = number
   default     = 20
 }
+
+variable "eks_security_group_id" {
+  description = "Security group ID of the EKS cluster"
+  type        = string
+}

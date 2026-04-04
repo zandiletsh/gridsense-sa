@@ -78,13 +78,14 @@ module "eks" {
 module "msk" {
   source = "../../modules/msk"
 
-  project_name         = "gridsense"
-  environment          = "dev"
-  vpc_id               = module.vpc.vpc_id
-  vpc_cidr             = "10.0.0.0/16"
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  kafka_version        = "3.5.1"
-  number_of_brokers    = 2
-  broker_instance_type = "kafka.t3.small"
-  broker_volume_size   = 20
+  project_name          = "gridsense"
+  environment           = "dev"
+  vpc_id                = module.vpc.vpc_id
+  vpc_cidr              = "10.0.0.0/16"
+  private_subnet_ids    = module.vpc.private_subnet_ids
+  kafka_version         = "3.5.1"
+  number_of_brokers     = 2
+  broker_instance_type  = "kafka.t3.small"
+  broker_volume_size    = 20
+  eks_security_group_id = module.eks.cluster_security_group_id
 }
