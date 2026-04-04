@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-validator-config
+  namespace: ingestion
+  labels:
+    app: data-validator
+    project: gridsense
+data:
+  SOURCE_TOPIC: "eskom.generation.raw"
+  VALIDATED_TOPIC: "eskom.generation.validated"
+  DEAD_LETTER_TOPIC: "eskom.generation.deadletter"
+  CONSUMER_GROUP_ID: "data-validator-group"

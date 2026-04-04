@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-validator
+  namespace: ingestion
+  labels:
+    app: data-validator
+    project: gridsense
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-validator
+  template:
+    metadata:
+      labels:
+        app: data-validator
+        project: gridsense
+    spec:
+      containers:
+        - name: data-validator
+          image: 173679718835.dkr.ecr.us-east-1.amazonaws.com/gridsense/data-validator:latest
+          imagePullPolicy: Always
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                secretKeyRef:
+                  name: eskom-ingestor-secrets
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: SOURCE_TOPIC
+              value: "eskom.generation.raw"
+            - name: VALIDATED_TOPIC
+              value: "eskom.generation.validated"
+            - name: DEAD_LETTER_TOPIC
+              value: "eskom.generation.deadletter"
+            - name: CONSUMER_GROUP_ID
+              value: "data-validator-group"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+      restartPolicy: Always
