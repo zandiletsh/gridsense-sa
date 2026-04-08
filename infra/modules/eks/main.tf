@@ -125,41 +125,6 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
-# ── EKS Node Group ─────────────────────────────────────────────────
-# Managed node group — AWS handles node provisioning and updates
-resource "aws_eks_node_group" "main" {
-  cluster_name    = aws_eks_cluster.main.name
-  node_group_name = "${var.project_name}-nodes-${var.environment}"
-  node_role_arn   = aws_iam_role.eks_nodes.arn
-  subnet_ids      = var.private_subnet_ids
-  instance_types  = [var.node_instance_type]
-
-  scaling_config {
-    desired_size = var.node_desired_size
-    min_size     = var.node_min_size
-    max_size     = var.node_max_size
-  }
-
-  # Allow rolling updates with zero downtime
-  update_config {
-    max_unavailable = 1
-  }
-
-  # Ensure IAM roles are ready before creating nodes
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_worker_node_policy,
-    aws_iam_role_policy_attachment.eks_cni_policy,
-    aws_iam_role_policy_attachment.eks_ecr_read,
-  ]
-
-  tags = {
-    Name        = "${var.project_name}-nodes-${var.environment}"
-    Environment = var.environment
-    Project     = var.project_name
-    ManagedBy   = "terraform"
-  }
-}
-
 # ── EKS Addons ─────────────────────────────────────────────────────
 # Install BEFORE node group so nodes are Ready immediately on join
 resource "aws_eks_addon" "vpc_cni" {
