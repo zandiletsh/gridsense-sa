@@ -161,23 +161,60 @@ resource "aws_eks_node_group" "main" {
 }
 
 # ── EKS Addons ─────────────────────────────────────────────────────
+# Install BEFORE node group so nodes are Ready immediately on join
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "vpc-cni"
 
-  depends_on = [aws_eks_node_group.main]
+  depends_on = [aws_eks_cluster.main]
 }
 
 resource "aws_eks_addon" "kube_proxy" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "kube-proxy"
 
-  depends_on = [aws_eks_node_group.main]
+  depends_on = [aws_eks_cluster.main]
 }
 
 resource "aws_eks_addon" "coredns" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "coredns"
 
-  depends_on = [aws_eks_node_group.main]
+  depends_on = [aws_eks_cluster.main]
+}
+
+# ── EKS Node Group ─────────────────────────────────────────────────
+resource "aws_eks_node_group" "main" {
+  cluster_name    = aws_eks_cluster.main.name
+  node_group_name = "${var.project_name}-nodes-${var.environment}"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = var.private_subnet_ids
+  instance_types  = [var.node_instance_type]
+
+  scaling_config {
+    desired_size = var.node_desired_size
+    min_size     = var.node_min_size
+    max_size     = var.node_max_size
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  # Wait for addons AND IAM roles before creating nodes
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_worker_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.eks_ecr_read,
+    aws_eks_addon.vpc_cni,
+    aws_eks_addon.kube_proxy,
+    aws_eks_addon.coredns,
+  ]
+
+  tags = {
+    Name        = "${var.project_name}-nodes-${var.environment}"
+    Environment = var.environment
+    Project     = var.project_name
+    ManagedBy   = "terraform"
+  }
 }
