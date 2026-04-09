@@ -127,11 +127,11 @@ resource "aws_eks_cluster" "main" {
 
 # ── EKS Addons ─────────────────────────────────────────────────────
 # Install BEFORE node group so nodes are Ready immediately on join
-resource "aws_eks_addon" "vpc_cni" {
+resource "aws_eks_addon" "coredns" {
   cluster_name = aws_eks_cluster.main.name
-  addon_name   = "vpc-cni"
+  addon_name   = "coredns"
 
-  depends_on = [aws_eks_cluster.main]
+  depends_on = [aws_eks_node_group.main]
 }
 
 resource "aws_eks_addon" "kube_proxy" {
@@ -173,7 +173,6 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.eks_ecr_read,
     aws_eks_addon.vpc_cni,
     aws_eks_addon.kube_proxy,
-    aws_eks_addon.coredns,
   ]
 
   tags = {
