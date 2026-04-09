@@ -53,6 +53,7 @@ def run():
         "eskom_ingestor_starting",
         poll_interval=POLL_INTERVAL_SECONDS,
         kafka_topic=KAFKA_TOPIC,
+        version="1.0.1",
     )
 
     eskom_client = EskomSePushClient(api_token=ESKOMSEPUSH_API_TOKEN)
